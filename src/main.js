@@ -4,6 +4,29 @@ import { listRef, formRef } from "./refs";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/style.css";
 
+const options = {
+  rootMargin: "0px",
+  threshold: 0.33,
+};
+
+const observer = new IntersectionObserver(onInfinityLoad, options);
+
+async function onInfinityLoad(entries, observer) {
+  entries.forEach(async (entry) => {
+    if (entry.isIntersecting) {
+      console.log(11);
+
+      observer.unobserve(entry.target);
+      const { products } = await getData("products");
+
+      const markup = createProductsMarkup(products);
+
+      addListMarkup(markup);
+      observer.observe(document.querySelector(".col-lg-3:last-child"));
+    }
+  });
+}
+
 formRef.addEventListener("submit", onSubmit);
 
 async function onSubmit(evt) {
@@ -21,10 +44,11 @@ async function onSubmit(evt) {
 
 async function init(e) {
   const { products } = await getData("products");
-  console.log(products);
+
   const markup = createProductsMarkup(products);
-  console.log(markup);
+
   addListMarkup(markup);
+  observer.observe(document.querySelector(".col-lg-3:last-child"));
 }
 init();
 
